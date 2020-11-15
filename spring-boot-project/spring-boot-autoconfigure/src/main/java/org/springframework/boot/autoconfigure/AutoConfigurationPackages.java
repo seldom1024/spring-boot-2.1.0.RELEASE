@@ -79,6 +79,11 @@ public abstract class AutoConfigurationPackages {
 	}
 
 	/**
+	 * 可以看到register方法注册了一个packageNames即自动配置类注解@EnableAutoConfiguration所在的所在的包名相关的bean。
+	 * 那么注册这个bean的目的是为了什么呢？
+	 * 结合官网注释知道，注册这个自动配置包名相关的bean是为了被其他地方引用，比如JPA entity scanner，具体拿来干什么久不知道了，这里不再深究了。
+	 */
+	/**
 	 * Programmatically registers the auto-configuration package names. Subsequent
 	 * invocations will add the given package names to those that have already been
 	 * registered. You can use this method to manually define the base packages that will
@@ -117,6 +122,11 @@ public abstract class AutoConfigurationPackages {
 		return StringUtils.toStringArray(merged);
 	}
 
+	/**
+	 * Registrar类是AutoConfigurationPackages的静态内部类，实现了ImportBeanDefinitionRegistrar和DeterminableImports两个接口。
+	 * 现在我们主要来关注下Registrar实现的registerBeanDefinitions方法,顾名思义，这个方法是注册bean定义的方法。
+	 * 看到它又调用了AutoConfigurationPackages的register方法
+	 */
 	/**
 	 * {@link ImportBeanDefinitionRegistrar} to store the base package from the importing
 	 * configuration.

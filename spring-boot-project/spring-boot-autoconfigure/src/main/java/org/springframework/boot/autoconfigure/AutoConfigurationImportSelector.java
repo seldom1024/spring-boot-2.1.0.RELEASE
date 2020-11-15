@@ -453,6 +453,12 @@ public class AutoConfigurationImportSelector
 		@Override
 		public void process(AnnotationMetadata annotationMetadata,
 				DeferredImportSelector deferredImportSelector) {
+			/**
+			 * deferredImportSelector
+			 * 主要做的事情就是在`this.group`即`AutoConfigurationGroup`对象的`process`方法中，
+			 * 传入的`AutoConfigurationImportSelector`对象来选择一些符合条件的自动配置类，
+			 * 过滤掉一些不符合条件的自动配置类，就是这么个事情，无他。
+			 */
 			Assert.state(
 					deferredImportSelector instanceof AutoConfigurationImportSelector,
 					() -> String.format("Only %s implementations are supported, got %s",

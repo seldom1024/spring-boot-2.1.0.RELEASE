@@ -108,7 +108,9 @@ abstract class FilteringSpringBootCondition extends SpringBootCondition
 
 	protected enum ClassNameFilter {
 
-		// 这里表示指定的类存在于类路径中，则返回true
+		/**
+		 * 这里表示指定的类存在于类路径中，则返回true
+		 */
 		PRESENT {
 
 			@Override
@@ -118,7 +120,9 @@ abstract class FilteringSpringBootCondition extends SpringBootCondition
 
 		},
 
-		// 这里表示指定的类不存在于类路径中，则返回true
+		/**
+		 * 这里表示指定的类不存在于类路径中，则返回true
+		 */
 		MISSING {
 
 			@Override
@@ -128,10 +132,20 @@ abstract class FilteringSpringBootCondition extends SpringBootCondition
 
 		};
 
-		// 这又是一个抽象方法，分别被PRESENT和MISSING枚举类实现
+		/**
+		 * 这又是一个抽象方法，分别被PRESENT和MISSING枚举类实现
+		 * @param className
+		 * @param classLoader
+		 * @return
+		 */
 		public abstract boolean matches(String className, ClassLoader classLoader);
 
-		// 检查指定的类是否存在于类路径中
+		/**
+		 *  检查指定的类是否存在于类路径中
+		 * @param className
+		 * @param classLoader
+		 * @return
+		 */
 		public static boolean isPresent(String className, ClassLoader classLoader) {
 			if (classLoader == null) {
 				classLoader = ClassUtils.getDefaultClassLoader();
@@ -146,7 +160,13 @@ abstract class FilteringSpringBootCondition extends SpringBootCondition
 			}
 		}
 
-		// 利用类加载器去加载指定的类
+		/**
+		 * 利用类加载器去加载指定的类
+		 * @param className
+		 * @param classLoader
+		 * @return
+		 * @throws ClassNotFoundException
+		 */
 		private static Class<?> forName(String className, ClassLoader classLoader)
 				throws ClassNotFoundException {
 			if (classLoader != null) {
