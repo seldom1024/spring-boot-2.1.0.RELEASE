@@ -42,6 +42,8 @@ public interface BindHandler {
 	 * @param target the item being bound
 	 * @param context the bind context
 	 * @return the actual item that should be used for binding (may be {@code null})
+	 *
+	 * onStart方法在外部属性绑定前被调用
 	 */
 	default <T> Bindable<T> onStart(ConfigurationPropertyName name, Bindable<T> target,
 			BindContext context) {
@@ -56,6 +58,8 @@ public interface BindHandler {
 	 * @param context the bind context
 	 * @param result the bound result (never {@code null})
 	 * @return the actual result that should be used (may be {@code null})
+	 *
+	 * onSuccess方法在外部属性成功绑定时被调用，该方法能够改变最终返回的属性值或对属性值进行校验
 	 */
 	default Object onSuccess(ConfigurationPropertyName name, Bindable<?> target,
 			BindContext context, Object result) {
@@ -72,6 +76,9 @@ public interface BindHandler {
 	 * @param error the cause of the error (if the exception stands it may be re-thrown)
 	 * @return the actual result that should be used (may be {@code null}).
 	 * @throws Exception if the binding isn't valid
+	 *
+	 * onFailure方法在外部属性绑定失败（包括onSuccess方法里的逻辑执行失败）时被调用，
+	 * 该方法可以用来catch住相关异常或者返回一个替代的结果（跟微服务的降级结果有点类似）
 	 */
 	default Object onFailure(ConfigurationPropertyName name, Bindable<?> target,
 			BindContext context, Exception error) throws Exception {
@@ -85,6 +92,8 @@ public interface BindHandler {
 	 * @param context the bind context
 	 * @param result the bound result (may be {@code null})
 	 * @throws Exception if the binding isn't valid
+	 *
+	 * 当外部属性绑定结束时（不管绑定成功还是失败）被调用
 	 */
 	default void onFinish(ConfigurationPropertyName name, Bindable<?> target,
 			BindContext context, Object result) throws Exception {

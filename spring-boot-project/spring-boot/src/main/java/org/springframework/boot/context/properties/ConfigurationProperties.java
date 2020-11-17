@@ -35,6 +35,9 @@ import org.springframework.core.annotation.AliasFor;
  * @author Dave Syer
  * @see ConfigurationPropertiesBindingPostProcessor
  * @see EnableConfigurationProperties
+ * @ConfigurationProperties这个注解的作用就是将外部配置的配置值绑定到其注解的类的属性上，可以作用于配置类或配置类的方法上。
+ * 可以看到@ConfigurationProperties注解除了有设置前缀，是否忽略一些不存在或无效的配置等属性等外，这个注解没有其他任何的处理逻辑，
+ * 可以看到@ConfigurationProperties是一个标志性的注解，源码入口不在这里。
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
@@ -46,6 +49,7 @@ public @interface ConfigurationProperties {
 	 * for {@link #prefix()}. A valid prefix is defined by one or more words separated
 	 * with dots (e.g. {@code "acme.system.feature"}).
 	 * @return the name prefix of the properties to bind
+	 * 前缀别名
 	 */
 	@AliasFor("prefix")
 	String value() default "";
@@ -55,6 +59,7 @@ public @interface ConfigurationProperties {
 	 * for {@link #value()}. A valid prefix is defined by one or more words separated with
 	 * dots (e.g. {@code "acme.system.feature"}).
 	 * @return the name prefix of the properties to bind
+	 * 前缀
 	 */
 	@AliasFor("value")
 	String prefix() default "";
@@ -64,6 +69,7 @@ public @interface ConfigurationProperties {
 	 * Invalid means invalid according to the binder that is used, and usually this means
 	 * fields of the wrong type (or that cannot be coerced into the correct type).
 	 * @return the flag value (default false)
+	 * 是否忽略无效的配置属性
 	 */
 	boolean ignoreInvalidFields() default false;
 
@@ -71,6 +77,7 @@ public @interface ConfigurationProperties {
 	 * Flag to indicate that when binding to this object unknown fields should be ignored.
 	 * An unknown field could be a sign of a mistake in the Properties.
 	 * @return the flag value (default true)
+	 * 是否忽略未知的配置属性
 	 */
 	boolean ignoreUnknownFields() default true;
 
