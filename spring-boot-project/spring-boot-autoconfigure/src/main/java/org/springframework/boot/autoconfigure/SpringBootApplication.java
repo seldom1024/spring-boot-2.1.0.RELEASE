@@ -42,6 +42,8 @@ import org.springframework.core.annotation.AliasFor;
  * @author Phillip Webb
  * @author Stephane Nicoll
  * @since 1.2.0
+ *
+ * @SpringBootApplication注解主要作为一个配置类，能够触发包扫描和自动配置的逻辑，从而使得SpringBoot的相关bean被注册进Spring容器
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -57,6 +59,8 @@ public @interface SpringBootApplication {
 	/**
 	 * Exclude specific auto-configuration classes such that they will never be applied.
 	 * @return the classes to exclude
+	 *
+	 * 等同于EnableAutoConfiguration注解的exclude属性
 	 */
 	@AliasFor(annotation = EnableAutoConfiguration.class)
 	Class<?>[] exclude() default {};
@@ -66,6 +70,8 @@ public @interface SpringBootApplication {
 	 * applied.
 	 * @return the class names to exclude
 	 * @since 1.3.0
+	 *
+	 * 等同于EnableAutoConfiguration注解的excludeName属性
 	 */
 	@AliasFor(annotation = EnableAutoConfiguration.class)
 	String[] excludeName() default {};
@@ -75,6 +81,8 @@ public @interface SpringBootApplication {
 	 * for a type-safe alternative to String-based package names.
 	 * @return base packages to scan
 	 * @since 1.3.0
+	 *
+	 * 同于ComponentScan注解的basePackages属性
 	 */
 	@AliasFor(annotation = ComponentScan.class, attribute = "basePackages")
 	String[] scanBasePackages() default {};
@@ -87,6 +95,8 @@ public @interface SpringBootApplication {
 	 * serves no purpose other than being referenced by this attribute.
 	 * @return base packages to scan
 	 * @since 1.3.0
+	 *
+	 * 等同于ComponentScan注解的basePackageClasses属性
 	 */
 	@AliasFor(annotation = ComponentScan.class, attribute = "basePackageClasses")
 	Class<?>[] scanBasePackageClasses() default {};
