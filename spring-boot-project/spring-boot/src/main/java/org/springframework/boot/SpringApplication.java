@@ -193,10 +193,16 @@ public class SpringApplication {
 
 	private static final Log logger = LogFactory.getLog(SpringApplication.class);
 
+	/**
+	 * SpringBoot的启动类即包含main函数的主类
+	 */
 	private Set<Class<?>> primarySources;
 
 	private Set<String> sources = new LinkedHashSet<>();
 
+	/**
+	 * 包含main函数的主类
+	 */
 	private Class<?> mainApplicationClass;
 
 	private Banner.Mode bannerMode = Banner.Mode.CONSOLE;
@@ -209,6 +215,9 @@ public class SpringApplication {
 
 	private Banner banner;
 
+	/**
+	 * 资源加载器
+	 */
 	private ResourceLoader resourceLoader;
 
 	private BeanNameGenerator beanNameGenerator;
@@ -217,14 +226,23 @@ public class SpringApplication {
 
 	private Class<? extends ConfigurableApplicationContext> applicationContextClass;
 
+	/**
+	 * 应用类型
+	 */
 	private WebApplicationType webApplicationType;
 
 	private boolean headless = true;
 
 	private boolean registerShutdownHook = true;
 
+	/**
+	 * 初始化器
+	 */
 	private List<ApplicationContextInitializer<?>> initializers;
 
+	/**
+	 * 监听器
+	 */
 	private List<ApplicationListener<?>> listeners;
 
 	private Map<String, Object> defaultProperties;
@@ -258,24 +276,48 @@ public class SpringApplication {
 	 * @param primarySources the primary bean sources
 	 * @see #run(Class, String[])
 	 * @see #setSources(Set)
+	 *
+	 * 可以看到构建SpringApplication对象时其实就是给前面讲的6个SpringApplication类的成员属性赋值而已，做一些初始化工作：
+	 *
+	 * 1.给resourceLoader属性赋值，resourceLoader属性，资源加载器，此时传入的resourceLoader参数为null；
+	 * 2.给primarySources属性赋值，primarySources属性即SpringApplication.run(MainApplication.class,args);中传入的MainApplication.class，该类为SpringBoot项目的启动类，主要通过该类来扫描Configuration类加载bean；
+	 * 3.给webApplicationType属性赋值，webApplicationType属性，代表应用类型，根据classpath存在的相应Application类来判断。因为后面要根据webApplicationType来确定创建哪种Environment对象和创建哪种ApplicationContext，详细分析请见后面的第3.1小节；
+	 * 4.给initializers属性赋值，initializers属性为List<ApplicationContextInitializer<?>>集合，利用SpringBoot的SPI机制从spring.factories配置文件中加载，后面在初始化容器的时候会应用这些初始化器来执行一些初始化工作。因为SpringBoot自己实现的SPI机制比较重要，因此独立成一小节来分析，详细分析请见后面的第4小节；
+	 * 5.给listeners属性赋值，listeners属性为List<ApplicationListener<?>>集合，同样利用利用SpringBoot的SPI机制从spring.factories配置文件中加载。因为SpringBoot启动过程中会在不同的阶段发射一些事件，所以这些加载的监听器们就是来监听SpringBoot启动过程中的一些生命周期事件的；
+	 * 6.给mainApplicationClass属性赋值，mainApplicationClass属性表示包含main函数的类，即这里要推断哪个类调用了main函数，然后把这个类的全限定名赋值给mainApplicationClass属性，用于后面启动流程中打印一些日志，详细分析见后面的第3.2小节。
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySources) {
+		// 【1】给resourceLoader属性赋值，注意传入的resourceLoader参数为null
 		this.resourceLoader = resourceLoader;
 		Assert.notNull(primarySources, "PrimarySources must not be null");
+		// 【2】给primarySources属性赋值，传入的primarySources其实就是SpringApplication.run(MainApplication.class, args);中的MainApplication.class
 		this.primarySources = new LinkedHashSet<>(Arrays.asList(primarySources));
+		// 【3】给webApplicationType属性赋值，根据classpath中存在哪种类型的类来确定是哪种应用类型
 		this.webApplicationType = WebApplicationType.deduceFromClasspath();
+		// 【4】给initializers属性赋值，利用SpringBoot自定义的SPI从spring.factories中加载ApplicationContextInitializer接口的实现类并赋值给initializers属性
 		setInitializers((Collection) getSpringFactoriesInstances(
 				ApplicationContextInitializer.class));
+		// 【5】给listeners属性赋值，利用SpringBoot自定义的SPI从spring.factories中加载ApplicationListener接口的实现类并赋值给listeners属性
 		setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
+		// 【6】给mainApplicationClass属性赋值，即这里要推断哪个类调用了main函数，然后再赋值给mainApplicationClass属性，用于后面启动流程中打印一些日志。
 		this.mainApplicationClass = deduceMainApplicationClass();
 	}
 
+	/**
+	 * deduceMainApplicationClass方法的主要作用就是从StackTraceElement调用栈数组中获取哪个类调用了main方法，
+	 * 然后再返回赋值给mainApplicationClass属性，然后用于后面启动流程中打印一些日志。
+	 * @return
+	 */
 	private Class<?> deduceMainApplicationClass() {
 		try {
+			// 获取StackTraceElement对象数组stackTrace，StackTraceElement对象存储了调用栈相关信息（比如类名，方法名等）
 			StackTraceElement[] stackTrace = new RuntimeException().getStackTrace();
+			// 遍历stackTrace数组
 			for (StackTraceElement stackTraceElement : stackTrace) {
+				// 若stackTraceElement记录的调用方法名等于main
 				if ("main".equals(stackTraceElement.getMethodName())) {
+					// 那么就返回stackTraceElement记录的类名即包含main函数的类名
 					return Class.forName(stackTraceElement.getClassName());
 				}
 			}
@@ -487,18 +529,24 @@ public class SpringApplication {
 	}
 
 	private <T> Collection<T> getSpringFactoriesInstances(Class<T> type) {
+		// 继续调用重载的getSpringFactoriesInstances方法进行加载
 		return getSpringFactoriesInstances(type, new Class<?>[] {});
 	}
 
 	private <T> Collection<T> getSpringFactoriesInstances(Class<T> type,
 			Class<?>[] parameterTypes, Object... args) {
+		// 【1】获得类加载器
 		ClassLoader classLoader = getClassLoader();
 		// Use names and ensure unique to protect against duplicates
+		// 【2】将接口类型和类加载器作为参数传入loadFactoryNames方法，从spring.factories配置文件中进行加载接口实现类
 		Set<String> names = new LinkedHashSet<>(
 				SpringFactoriesLoader.loadFactoryNames(type, classLoader));
+		// 【3】实例化从spring.factories中加载的接口实现类
 		List<T> instances = createSpringFactoriesInstances(type, parameterTypes,
 				classLoader, args, names);
+		// 【4】进行排序
 		AnnotationAwareOrderComparator.sort(instances);
+		// 【5】返回加载并实例化好的接口实现类
 		return instances;
 	}
 
@@ -803,9 +851,11 @@ public class SpringApplication {
 	 * @return a ClassLoader (never null)
 	 */
 	public ClassLoader getClassLoader() {
+		// 前面在构造SpringApplicaiton对象时，传入的resourceLoader参数是null，因此不会执行if语句里面的逻辑
 		if (this.resourceLoader != null) {
 			return this.resourceLoader.getClassLoader();
 		}
+		// 获取默认的类加载器
 		return ClassUtils.getDefaultClassLoader();
 	}
 
